@@ -1,0 +1,33 @@
+name: Build and Deploy to Azure ACR
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build Docker image
+        run: docker build -t test21.azurecr.io/basic-agent:${{ github.sha }} -t test21.azurecr.io/basic-agent:latest .
+
+      - name: Push to ACR
+        run: |
+          docker push test21.azurecr.io/basic-agent:${{ github.sha }}
+          docker push test21.azurecr.io/basic-agent:latest
