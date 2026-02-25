@@ -31,3 +31,12 @@ jobs:
         run: |
           docker push test21.azurecr.io/basic-agent:${{ github.sha }}
           docker push test21.azurecr.io/basic-agent:latest
+
+      - name: Deploy to Azure Container Apps
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az containerapp update \
+              --name basic-agent-app \
+              --resource-group rg-cgajardo-6066 \
+              --image test21.azurecr.io/basic-agent:${{ github.sha }}
